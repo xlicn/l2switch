@@ -42,4 +42,19 @@ module loop-remover-config {
             default "flow:1";
         }
     }
+
+    rpc self-destruct{
+        output{
+            leaf result{
+                type string;
+            }
+        }
+    }
+
+    notification network-destruct{
+        leaf drop-all{
+            type boolean;
+            description "Tell l2switch-main module to drop all flows in every switch.";
+        }
+    }
 }

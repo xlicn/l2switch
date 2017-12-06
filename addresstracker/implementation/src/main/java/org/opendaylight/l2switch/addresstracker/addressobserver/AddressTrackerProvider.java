@@ -15,6 +15,7 @@ import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.AddressTrackerConfig;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ public class AddressTrackerProvider {
     private final DataBroker dataBroker;
     private final Long timestampUpdateInterval;
     private final String observerAddressesFrom;
+    private ListenerRegistration<CanSelfDestruct> listenerRegistration = null;
 
     public AddressTrackerProvider(final DataBroker dataBroker,
             final NotificationProviderService notificationProviderService,
@@ -68,6 +70,8 @@ public class AddressTrackerProvider {
             this.listenerRegistrations.add(notificationService.registerNotificationListener(addressObserverUsingIpv6));
         }
 
+        CanSelfDestruct canSelfDestruct = new CanSelfDestruct(dataBroker);
+        listenerRegistration = canSelfDestruct.register(dataBroker);
         LOG.info("AddressTracker initialized.");
     }
 
@@ -80,6 +84,7 @@ public class AddressTrackerProvider {
                     LOG.error("Failed to close registration={}", listenerRegistration, e);
                 }
         }
+        listenerRegistration.close();
         LOG.info("AddressTracker torn down.", this);
     }
 

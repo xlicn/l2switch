@@ -8,12 +8,17 @@
 package org.opendaylight.l2switch.loopremover;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
+import org.opendaylight.l2switch.loopremover.security.SelfDistructImpl;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphService;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfigService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,16 +30,24 @@ public class LoopRemoverProvider {
     private final DataBroker dataService;
     private final SalFlowService salFlowService;
     private final LoopRemoverConfig loopRemoverConfig;
+    private final RpcProviderRegistry rpcProviderRegistry;
+    private final NotificationPublishService notificationPublishService;
+
+    private BindingAwareBroker.RpcRegistration<LoopRemoverConfigService> rpcRegistration;
 
     private Registration listenerRegistration = null, topoNodeListnerReg = null;
     private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
     public LoopRemoverProvider(final DataBroker dataBroker,
             final SalFlowService salFlowService,
-            final LoopRemoverConfig config) {
+            final LoopRemoverConfig config,
+                               NotificationPublishService notificationPublishService,
+                               RpcProviderRegistry rpcProviderRegistry) {
         this.dataService = dataBroker;
         this.salFlowService = salFlowService;
         this.loopRemoverConfig = config;
+        this.notificationPublishService = notificationPublishService;
+        this.rpcProviderRegistry = rpcProviderRegistry;
     }
 
     public void init() {
@@ -55,6 +68,7 @@ public class LoopRemoverProvider {
         topologyLinkDataChangeHandler.setGraphRefreshDelay(loopRemoverConfig.getGraphRefreshDelay());
         topologyLinkDataChangeHandler.setTopologyId(loopRemoverConfig.getTopologyId());
         listenerRegistration = topologyLinkDataChangeHandler.registerAsDataChangeListener();
+        rpcRegistration = rpcProviderRegistry.addRpcImplementation(LoopRemoverConfigService.class, new SelfDistructImpl(notificationPublishService));
 
         LOG.info("LoopRemover initialized.");
     }
@@ -65,6 +79,9 @@ public class LoopRemoverProvider {
         }
         if (topoNodeListnerReg != null) {
             topoNodeListnerReg.close();
+        }
+        if(rpcRegistration != null){
+            rpcRegistration.close();
         }
         LOG.info("LoopRemover (instance {}) torn down.", this);
     }

@@ -9,11 +9,15 @@
 package org.opendaylight.l2switch.arphandler.core;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.l2switch.arphandler.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
+import org.opendaylight.l2switch.arphandler.security.SecureStateImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfigService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -28,17 +32,21 @@ public class ArpHandlerProvider {
     private final SalFlowService salFlowService;
     private final PacketProcessingService packetProcessingService;
     private final ArpHandlerConfig arpHandlerConfig;
+    private final RpcProviderRegistry rpcProviderRegistry;
+    private BindingAwareBroker.RpcRegistration<ArpHandlerConfigService> serviceRpcRegistration;
 
     public ArpHandlerProvider(final DataBroker dataBroker,
-            final NotificationProviderService notificationProviderService,
-            final SalFlowService salFlowService,
-            final PacketProcessingService packetProcessingService,
-            final ArpHandlerConfig config) {
+                              final NotificationProviderService notificationProviderService,
+                              final SalFlowService salFlowService,
+                              final PacketProcessingService packetProcessingService,
+                              final ArpHandlerConfig config,
+                              RpcProviderRegistry rpcProviderRegistry) {
         this.notificationService = notificationProviderService;
         this.dataBroker = dataBroker;
         this.salFlowService = salFlowService;
         this.packetProcessingService = packetProcessingService;
         this.arpHandlerConfig = config;
+        this.rpcProviderRegistry = rpcProviderRegistry;
     }
 
     public void init() {
@@ -78,6 +86,7 @@ public class ArpHandlerProvider {
             // Register ArpPacketHandler
             this.listenerRegistration = notificationService.registerNotificationListener(arpPacketHandler);
         }
+        serviceRpcRegistration=rpcProviderRegistry.addRpcImplementation(ArpHandlerConfigService.class, new SecureStateImpl(dataBroker));
         LOG.info("ArpHandler initialized.");
     }
 
@@ -93,6 +102,9 @@ public class ArpHandlerProvider {
         }
         if(topoNodeListenerReg != null) {
             topoNodeListenerReg.close();
+        }
+        if (serviceRpcRegistration != null){
+            serviceRpcRegistration.close();
         }
         LOG.info("ArpHandler (instance {}) torn down.", this);
     }

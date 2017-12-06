@@ -27,4 +27,12 @@ module address-tracker-config {
             description "All possible values for comma separated values e.g. arp,ipv,ipv6";
         }
     }
+
+    container SelfDestructSwitch{
+        leaf switch{
+            type boolean;
+            default false;
+            description "This is the switch of canSelfDestruct.";
+        }
+    }
 }

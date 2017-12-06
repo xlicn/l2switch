@@ -6,6 +6,10 @@
   <reference id="dataBroker"
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
     odl:type="default" />
+  <reference id="rpcProviderRegistry"
+             interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+  <reference id="notificationPublishService"
+             interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService"/>
 
   <odl:clustered-app-config id="loopRemoverConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig">
@@ -20,6 +24,8 @@
     <argument ref="dataBroker" />
     <argument ref="salFlowService" />
     <argument ref="loopRemoverConfig" />
+    <argument ref="rpcProviderRegistry" />
+    <argument ref="notificationPublishService" />
   </bean>
 
 </blueprint>

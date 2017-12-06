@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2017 lixing and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.l2switch.arphandler.security;
+
+
+
+import com.google.common.util.concurrent.Futures;
+import java.util.concurrent.Future;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfigService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SetSecureStateInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SetSecureStateOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SetSecureStateOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SecureState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SecureStateBuilder;
+
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+public class SecureStateImpl implements ArpHandlerConfigService {
+    private static final Logger LOG = LoggerFactory.getLogger(SecureStateImpl.class);
+
+    private DataBroker dataBroker;
+
+    public SecureStateImpl(DataBroker dataBroker) {
+        this.dataBroker =dataBroker;
+    }
+
+
+    @Override
+    public Future<RpcResult<SetSecureStateOutput>> setSecureState(SetSecureStateInput input){
+        RpcResultBuilder<SetSecureStateOutput> rpcResultBuilder = null;
+        rpcResultBuilder = RpcResultBuilder.failed();
+        SetSecureStateOutputBuilder setSecureStateOutputBuilder = new SetSecureStateOutputBuilder();
+
+        ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
+        InstanceIdentifier<SecureState> id = InstanceIdentifier.builder(SecureState.class).build();
+        SecureStateBuilder secureStateBuilder = new SecureStateBuilder();
+        secureStateBuilder.setLevel(input.getLevel().getIntValue());
+        readWriteTransaction.put(LogicalDatastoreType.CONFIGURATION,id,secureStateBuilder.build());
+        try {
+            readWriteTransaction.submit().checkedGet();
+            rpcResultBuilder = RpcResultBuilder.success();
+            System.out.println("OK, the security level is "+input.getLevel().getName());
+            setSecureStateOutputBuilder.setResult("OK, the security level is "+input.getLevel().getName());
+        }catch (TransactionCommitFailedException tcfe){
+            setSecureStateOutputBuilder.setResult("Woops, fail to set secure state.");
+        }
+        rpcResultBuilder.withResult(setSecureStateOutputBuilder.build());
+        return Futures.immediateFuture(rpcResultBuilder.build());
+    }
+}

@@ -13,6 +13,7 @@ import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.flow.ReactiveFlowWriter;
 import org.opendaylight.l2switch.inventory.InventoryReader;
+import org.opendaylight.l2switch.security.SelfDestructHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.l2switch.config.rev140528.L2switchConfig;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class L2SwitchMainProvider {
 
     private final static Logger LOG = LoggerFactory.getLogger(L2SwitchMainProvider.class);
-    private Registration topoNodeListherReg = null, reactFlowWriterReg = null;
+    private Registration topoNodeListherReg = null, reactFlowWriterReg = null, selfDestructListenerReg = null;
 
     private final DataBroker dataService;
     private final NotificationProviderService notificationService;
@@ -72,7 +73,8 @@ public class L2SwitchMainProvider {
             ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
             reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
         }
-
+        SelfDestructHandler selfDestructHandler = new SelfDestructHandler(dataService);
+        notificationService.registerNotificationListener(selfDestructHandler);
         LOG.info("L2SwitchMain initialized.");
     }
 
@@ -82,6 +84,9 @@ public class L2SwitchMainProvider {
         }
         if(topoNodeListherReg != null) {
             topoNodeListherReg.close();
+        }
+        if (selfDestructListenerReg != null){
+            selfDestructListenerReg.close();
         }
         LOG.info("L2SwitchMain (instance {}) torn down.", this);
     }

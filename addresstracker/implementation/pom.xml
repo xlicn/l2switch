@@ -37,6 +37,10 @@
       <artifactId>packethandler-model</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.l2switch.arphandler</groupId>
+      <artifactId>arphandler-impl</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
       <artifactId>addresstracker-model</artifactId>
     </dependency>

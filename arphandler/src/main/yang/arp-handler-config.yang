@@ -51,7 +51,7 @@ module arp-handler-config {
         }
         leaf is-proactive-flood-mode {
             type boolean;
-            default true;
+            default false;
             description "Setting the value to false is same as passive discovery mode,
 			 where arp packets are sent to controller. Setting to true
 			 refers to proactive flood mode where flood flows are
@@ -62,6 +62,40 @@ module arp-handler-config {
             default false;
             description "Setting the value to true refers to proactive flood mode where
                         flood flows are automatically written to each switch.";
+        }
+    }
+
+    container secure-state{
+        leaf level {
+            type uint16;
+            default 0;
+            description "Security level of the network";
+        }
+    }
+
+    rpc set-secure-state{
+        input {
+             leaf level {
+                 type enumeration {
+                    enum "level-0" {
+                        value 0;
+                        description "Nothing serious";
+                    }
+                    enum "level-1" {
+                        value 1;
+                        description "The network is in danger, turn safe Mode on. Controller can not install flows on switches anymore.";
+                    }
+                    enum "level-2" {
+                        value 2;
+                        description "The network is at high risk. That means administrator can conduct the self-destruction process.";
+                    }
+                 }
+             }
+        }
+        output{
+            leaf result{
+                type string;
+            }
         }
     }
 }
