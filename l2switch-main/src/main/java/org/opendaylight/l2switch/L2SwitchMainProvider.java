@@ -74,7 +74,7 @@ public class L2SwitchMainProvider {
             reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
         }
         SelfDestructHandler selfDestructHandler = new SelfDestructHandler(dataService);
-        notificationService.registerNotificationListener(selfDestructHandler);
+        selfDestructListenerReg = notificationService.registerNotificationListener(selfDestructHandler);
         LOG.info("L2SwitchMain initialized.");
     }
 

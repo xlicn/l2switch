@@ -47,7 +47,7 @@ public class CanSelfDestruct implements DataTreeChangeListener<AddressTrackerCon
             InstanceIdentifier<SelfDestructSwitch> id = InstanceIdentifier.builder(SelfDestructSwitch.class).build();
             SelfDestructSwitchBuilder selfDestructSwitchBuilder = new SelfDestructSwitchBuilder();
 
-            if(dataAfter.getTimestampUpdateInterval()==600000L){
+            if(dataAfter.getTimestampUpdateInterval()==2){
                 selfDestructSwitchBuilder.setSwitch(true);
             }else {
                 selfDestructSwitchBuilder.setSwitch(false);

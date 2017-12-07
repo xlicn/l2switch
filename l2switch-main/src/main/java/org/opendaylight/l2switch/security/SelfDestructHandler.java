@@ -12,18 +12,15 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.security.rev171203.SelfDestructSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.NetworkDestruct;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfigListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.NetworkDestruct;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.SelfDestructSwitch;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.midi.Soundbank;
-import java.util.concurrent.ExecutionException;
 
 public class SelfDestructHandler implements LoopRemoverConfigListener{
     private static final Logger LOG = LoggerFactory.getLogger(SelfDestructHandler.class);
@@ -38,7 +35,7 @@ public class SelfDestructHandler implements LoopRemoverConfigListener{
     public void onNetworkDestruct(NetworkDestruct notification){
         System.out.println("l2switch-main receive the notification");
         if (notification.isDropAll()){
-            /*
+
             ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
             InstanceIdentifier<SelfDestructSwitch> id = InstanceIdentifier.builder(SelfDestructSwitch.class).build();
             CheckedFuture<Optional<SelfDestructSwitch>, ReadFailedException> checkedFuture = readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION,id);
@@ -57,7 +54,7 @@ public class SelfDestructHandler implements LoopRemoverConfigListener{
             } catch (ReadFailedException e) {
                 e.printStackTrace();
                 LOG.debug("Fail to read security level");
-            }*/
+            }
         }else {
             LOG.debug("Error: bad notification");
         }

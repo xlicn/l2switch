@@ -8,16 +8,8 @@
 package org.opendaylight.l2switch.packethandler;
 
 import com.google.common.collect.ImmutableSet;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
-import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
-import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
-import org.opendaylight.l2switch.packethandler.decoders.IcmpDecoder;
-import org.opendaylight.l2switch.packethandler.decoders.Ipv4Decoder;
-import org.opendaylight.l2switch.packethandler.decoders.Ipv6Decoder;
-import org.opendaylight.l2switch.packethandler.security.CanSelfDestruct;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.l2switch.packethandler.decoders.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +19,9 @@ public class PacketHandlerProvider {
     ImmutableSet<AbstractPacketDecoder> decoders;
 
     private final NotificationProviderService notificationService;
-    private final DataBroker dataBroker;
-    private ListenerRegistration<CanSelfDestruct> listenerRegistration = null;
 
-    public PacketHandlerProvider(final NotificationProviderService notificationService, DataBroker dataBroker) {
+    public PacketHandlerProvider(final NotificationProviderService notificationService) {
         this.notificationService = notificationService;
-        this.dataBroker = dataBroker;
     }
 
     public void initiateDecoders() {
@@ -40,8 +29,6 @@ public class PacketHandlerProvider {
                 .add(new EthernetDecoder(notificationService))
                 .add(new ArpDecoder(notificationService)).add(new Ipv4Decoder(notificationService))
                 .add(new Ipv6Decoder(notificationService)).add(new IcmpDecoder(notificationService)).build();
-        CanSelfDestruct canSelfDestruct = new CanSelfDestruct(dataBroker);
-        listenerRegistration = canSelfDestruct.register(dataBroker);
         LOG.info("PacketHandler initialized.");
     }
 
