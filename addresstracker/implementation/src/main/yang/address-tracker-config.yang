@@ -28,7 +28,7 @@ module address-tracker-config {
         }
     }
 
-    container SelfDestructSwitch{
+    container self-destruct-switch{
         leaf switch{
             type boolean;
             default false;

@@ -68,7 +68,7 @@ public class LoopRemoverProvider {
         topologyLinkDataChangeHandler.setGraphRefreshDelay(loopRemoverConfig.getGraphRefreshDelay());
         topologyLinkDataChangeHandler.setTopologyId(loopRemoverConfig.getTopologyId());
         listenerRegistration = topologyLinkDataChangeHandler.registerAsDataChangeListener();
-        rpcRegistration = rpcProviderRegistry.addRpcImplementation(LoopRemoverConfigService.class, new SelfDistructImpl(notificationPublishService, dataService));
+        rpcRegistration = rpcProviderRegistry.addRpcImplementation(LoopRemoverConfigService.class, new SelfDistructImpl(notificationPublishService));
 
         LOG.info("LoopRemover initialized.");
     }

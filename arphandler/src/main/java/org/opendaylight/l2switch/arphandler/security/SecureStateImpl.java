@@ -11,24 +11,18 @@ package org.opendaylight.l2switch.arphandler.security;
 
 
 import com.google.common.util.concurrent.Futures;
-import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfigService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SetSecureStateInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SetSecureStateOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SetSecureStateOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SecureState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.SecureStateBuilder;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.*;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Future;
 
 
 public class SecureStateImpl implements ArpHandlerConfigService {
@@ -55,10 +49,11 @@ public class SecureStateImpl implements ArpHandlerConfigService {
         try {
             readWriteTransaction.submit().checkedGet();
             rpcResultBuilder = RpcResultBuilder.success();
-            System.out.println("OK, the security level is "+input.getLevel().getName());
-            setSecureStateOutputBuilder.setResult("OK, the security level is "+input.getLevel().getName());
+            System.out.println("###arp-handler receives restful request###");
+            System.out.println("The secure state is set to "+input.getLevel().getName());
+            setSecureStateOutputBuilder.setResult("OK, the secure state is set to "+input.getLevel().getName());
         }catch (TransactionCommitFailedException tcfe){
-            setSecureStateOutputBuilder.setResult("Woops, fail to set secure state.");
+            setSecureStateOutputBuilder.setResult("Woops, fail to set secure state");
         }
         rpcResultBuilder.withResult(setSecureStateOutputBuilder.build());
         return Futures.immediateFuture(rpcResultBuilder.build());

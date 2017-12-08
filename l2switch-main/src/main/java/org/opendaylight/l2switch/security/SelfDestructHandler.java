@@ -33,27 +33,27 @@ public class SelfDestructHandler implements LoopRemoverConfigListener{
 
     @Override
     public void onNetworkDestruct(NetworkDestruct notification){
-        System.out.println("l2switch-main receive the notification");
+        System.out.println("###l2switch-main receives the notification###");
         if (notification.isDropAll()){
-
             ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
             InstanceIdentifier<SelfDestructSwitch> id = InstanceIdentifier.builder(SelfDestructSwitch.class).build();
             CheckedFuture<Optional<SelfDestructSwitch>, ReadFailedException> checkedFuture = readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION,id);
 
             try {
-                //Optional<SelfDestructSwitch> optional = readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION,id).get();
                 Optional<SelfDestructSwitch> optional = checkedFuture.checkedGet();
                 if (optional.isPresent()){
-                    System.out.println("Security level is "+optional.get().isSwitch());
                     if (optional.get().isSwitch()){
-                        LOG.debug("Start to self destruct...goodbye.");
+                        System.out.println("Start to self destruct...goodbye.");
                     }else {
-                        LOG.debug("We can still make it.");
+                        System.out.println("We can still make it.");
                     }
+                }
+                else {
+                    System.out.println("Error: Data not found");
                 }
             } catch (ReadFailedException e) {
                 e.printStackTrace();
-                LOG.debug("Fail to read security level");
+                System.out.println("Fail to read security level");
             }
         }else {
             LOG.debug("Error: bad notification");
